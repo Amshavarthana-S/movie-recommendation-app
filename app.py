@@ -5,54 +5,111 @@ import os
 
 # ==================== PAGE CONFIG ====================
 st.set_page_config(
-    page_title="🎬 Movie Recommender",
-    page_icon="🍿",
-    layout="wide",
+    page_title="Movie Recommender",
+        layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ==================== CUSTOM CSS ====================
 st.markdown("""
     <style>
-    .main {
-        padding: 2rem;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
     
-    .movie-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1.5rem;
-        border-radius: 10px;
-        color: white;
-        margin: 1rem 0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    html, body, [class*="css"]  {
+        font-family: 'Roboto', sans-serif;
     }
-    
-    .metric-box {
-        background-color: #f0f2f6;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 0.5rem 0;
-    }
-    
-    .recommendation-box {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 1rem;
-        border-radius: 8px;
-        color: white;
-        margin: 0.5rem 0;
-    }
-    
+
+    /* Header */
     .header-title {
-        color: #667eea;
-        font-weight: bold;
-        font-size: 3rem;
-        text-align: center;
+        color: #38bdf8; /* Light blue accent */
+        font-weight: 700;
+        font-size: 2.8rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
     
     .subheader {
-        color: #764ba2;
-        font-size: 1.5rem;
-        margin-top: 2rem;
+        color: #94a3b8;
+        font-size: 1.4rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+    
+    /* Movie Cards */
+    .dashboard-card {
+        background-color: #1e293b; /* Slate 800 */
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #334155; /* Slate 700 */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        margin-bottom: 1rem;
+        transition: transform 0.2s, border-color 0.2s;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        border-color: #38bdf8;
+    }
+    
+    /* Metrics and Data */
+    [data-testid="stMetricValue"] {
+        font-size: 1.6rem !important;
+        font-weight: 700 !important;
+        color: #2dd4bf !important; /* Teal accent for data */
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        color: #94a3b8 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        border-right: 1px solid #1e293b;
+    }
+    
+    /* Buttons */
+    .stButton>button {
+        background-color: #38bdf8;
+        color: #0f172a;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        width: 100%;
+        box-shadow: 0 4px 14px 0 rgba(56, 189, 248, 0.39);
+    }
+    
+    .stButton>button:hover {
+        background-color: #7dd3fc;
+        color: #0f172a;
+        transform: translateY(-1px);
+    }
+    
+    /* Info/Error Messages */
+    .stAlert {
+        background-color: #1e293b;
+        border-radius: 8px;
+        border-left: 4px solid #38bdf8;
+        color: #f8fafc;
+        border-top: 1px solid #334155;
+        border-right: 1px solid #334155;
+        border-bottom: 1px solid #334155;
+    }
+    
+    /* Selectbox */
+    .stSelectbox label {
+        color: #cbd5e1 !important;
+        font-weight: 500;
+    }
+    
+    hr {
+        border-top-color: #334155 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -101,23 +158,23 @@ def get_recommendations(movie_title, num_recs=10):
 # ==================== HEADER ====================
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
-    st.markdown('<h1 class="header-title">🎬 Movie Recommender</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="header-title">Movie Recommender</h1>', unsafe_allow_html=True)
 
 st.markdown("---")
 st.write("Get personalized movie recommendations based on plot similarity using TF-IDF & Cosine Similarity")
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
-    st.header("⚙️ Settings")
+    st.header("Settings")
     
     view_mode = st.radio(
         "Choose view:",
-        ["🎯 Get Recommendations", "🔍 Search Movies", "📊 Dataset Info"]
+        ["Get Recommendations", "Search Movies", "Dataset Info"]
     )
     
     st.divider()
     
-    if view_mode == "🎯 Get Recommendations":
+    if view_mode == "Get Recommendations":
         num_recs = st.slider(
             "Number of recommendations:",
             min_value=5,
@@ -129,7 +186,7 @@ with st.sidebar:
     st.divider()
     
     st.markdown("""
-        ### 📖 How it Works:
+        ### How it Works:
         
         1. **Select a movie** you like
         2. **Click "Get Recommendations"**
@@ -142,8 +199,8 @@ with st.sidebar:
 
 # ==================== MAIN CONTENT ====================
 
-if view_mode == "🎯 Get Recommendations":
-    st.markdown('<h2 class="subheader">🎥 Select a Movie & Get Recommendations</h2>', unsafe_allow_html=True)
+if view_mode == "Get Recommendations":
+    st.markdown('<h2 class="subheader">Select a Movie & Get Recommendations</h2>', unsafe_allow_html=True)
     
     # Movie selection
     movie_list = sorted(df['original_title'].unique().tolist())
@@ -156,7 +213,7 @@ if view_mode == "🎯 Get Recommendations":
     # Get button
     col1, col2 = st.columns([3, 1])
     with col2:
-        get_recs_button = st.button("🎯 Get Recommendations", key="get_recs")
+        get_recs_button = st.button("Get Recommendations", key="get_recs")
     
     if get_recs_button:
         # Get movie info
@@ -164,26 +221,29 @@ if view_mode == "🎯 Get Recommendations":
         
         if movie_info:
             # Display selected movie info
-            st.markdown(f'<h3 class="subheader">📽️ You Selected: {selected_movie}</h3>', unsafe_allow_html=True)
+            st.markdown(f'<h3 class="subheader">You Selected: {selected_movie}</h3>', unsafe_allow_html=True)
             
+            st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
             # Movie metrics
             col1, col2, col3, col4, col5 = st.columns(5)
             
             with col1:
-                st.metric("⭐ Rating", f"{movie_info['rating']:.1f}/10")
+                st.metric("Rating", f"{movie_info['rating']:.1f}/10")
             with col2:
-                st.metric("🔥 Popularity", f"{movie_info['popularity']:.0f}")
+                st.metric("Popularity", f"{movie_info['popularity']:.0f}")
             with col3:
-                st.metric("📊 Votes", f"{int(movie_info['votes']):,}")
+                st.metric("Votes", f"{int(movie_info['votes']):,}")
             with col4:
                 year = movie_info['release_date'][:4] if movie_info['release_date'] else "N/A"
-                st.metric("📅 Year", year)
+                st.metric("Year", year)
             with col5:
                 budget_m = f"${movie_info['budget']/1e6:.1f}M" if movie_info['budget'] > 0 else "N/A"
-                st.metric("💰 Budget", budget_m)
+                st.metric("Budget", budget_m)
+            
+            st.markdown("<hr style='margin: 1rem 0;'>", unsafe_allow_html=True)
             
             # Overview
-            st.markdown("**📝 Plot Summary:**")
+            st.markdown("**Plot Summary:**")
             st.info(movie_info['overview'])
             
             # Additional info
@@ -195,6 +255,7 @@ if view_mode == "🎯 Get Recommendations":
             with col3:
                 revenue_m = f"${movie_info['revenue']/1e6:.1f}M" if movie_info['revenue'] > 0 else "N/A"
                 st.caption(f"**Revenue:** {revenue_m}")
+            st.markdown('</div>', unsafe_allow_html=True)
             
             st.divider()
             
@@ -202,7 +263,7 @@ if view_mode == "🎯 Get Recommendations":
             recommendations = get_recommendations(selected_movie, num_recs)
             
             if recommendations:
-                st.markdown(f'<h3 class="subheader">🎯 Top {len(recommendations)} Similar Movies</h3>', unsafe_allow_html=True)
+                st.markdown(f'<h3 class="subheader">Top {len(recommendations)} Similar Movies</h3>', unsafe_allow_html=True)
                 
                 # Display recommendations in columns
                 cols = st.columns(2)
@@ -212,31 +273,32 @@ if view_mode == "🎯 Get Recommendations":
                         movie_rec_info = get_movie_info(movie)
                         
                         if movie_rec_info:
-                            st.markdown(f"### {idx+1}. {movie}")
+                            st.markdown('<div class="dashboard-card">', unsafe_allow_html=True)
+                            st.markdown(f"#### {idx+1}. {movie}")
                             
                             col1, col2, col3 = st.columns(3)
                             with col1:
-                                st.metric("⭐", f"{movie_rec_info['rating']:.1f}/10")
+                                st.metric("Rating", f"{movie_rec_info['rating']:.1f}/10")
                             with col2:
-                                st.metric("🔥", f"{movie_rec_info['popularity']:.0f}")
+                                st.metric("Pop.", f"{movie_rec_info['popularity']:.0f}")
                             with col3:
-                                st.metric("📊", f"{int(movie_rec_info['votes']):,}")
+                                st.metric("Votes", f"{int(movie_rec_info['votes']):,}")
                             
                             # Similarity score
                             st.caption(f"**Similarity:** {score*100:.1f}%")
                             
                             # Plot preview
                             plot_preview = movie_rec_info['overview']
-                            if len(plot_preview) > 150:
-                                plot_preview = plot_preview[:150] + "..."
+                            if len(plot_preview) > 130:
+                                plot_preview = plot_preview[:130] + "..."
                             st.caption(plot_preview)
                             
-                            st.divider()
+                            st.markdown('</div>', unsafe_allow_html=True)
             else:
-                st.error("❌ Could not get recommendations for this movie")
+                st.error("Could not get recommendations for this movie")
 
-elif view_mode == "🔍 Search Movies":
-    st.markdown('<h2 class="subheader">🔍 Search for Movies</h2>', unsafe_allow_html=True)
+elif view_mode == "Search Movies":
+    st.markdown('<h2 class="subheader">Search for Movies</h2>', unsafe_allow_html=True)
     
     search_query = st.text_input(
         "Enter movie name or partial name:",
@@ -256,31 +318,31 @@ elif view_mode == "🔍 Search Movies":
                 with col1:
                     st.write(f"{i}. {movie}")
                 with col2:
-                    if st.button("📽️", key=f"select_{i}"):
+                    if st.button("Select", key=f"select_{i}"):
                         st.session_state.selected_movie = movie
         else:
             st.warning(f"No movies found matching '{search_query}'")
     else:
-        st.info(f"💬 Enter a movie name to search (Total: {len(df)} movies)")
+        st.info(f"Enter a movie name to search (Total: {len(df)} movies)")
 
-elif view_mode == "📊 Dataset Info":
-    st.markdown('<h2 class="subheader">📊 Dataset Statistics</h2>', unsafe_allow_html=True)
+elif view_mode == "Dataset Info":
+    st.markdown('<h2 class="subheader">Dataset Statistics</h2>', unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("📽️ Total Movies", len(df))
+        st.metric("Total Movies", len(df))
     with col2:
-        st.metric("⭐ Avg Rating", f"{df['vote_average'].mean():.2f}")
+        st.metric("Avg Rating", f"{df['vote_average'].mean():.2f}")
     with col3:
-        st.metric("🔥 Avg Popularity", f"{df['popularity'].mean():.1f}")
+        st.metric("Avg Popularity", f"{df['popularity'].mean():.1f}")
     with col4:
-        st.metric("📊 Total Votes", f"{int(df['vote_count'].sum()):,}")
+        st.metric("Total Votes", f"{int(df['vote_count'].sum()):,}")
     
     st.divider()
     
     # Top rated
-    st.markdown("### 🏆 Top 10 Rated Movies")
+    st.markdown("### Top 10 Rated Movies")
     top_rated = df.nlargest(10, 'vote_average')[['original_title', 'vote_average', 'vote_count']]
     
     for idx, (i, row) in enumerate(top_rated.iterrows(), 1):
@@ -288,14 +350,14 @@ elif view_mode == "📊 Dataset Info":
         with col1:
             st.write(f"**{idx}. {row['original_title']}**")
         with col2:
-            st.caption(f"⭐ {row['vote_average']:.1f}")
+            st.caption(f"Rating: {row['vote_average']:.1f}")
         with col3:
-            st.caption(f"📊 {int(row['vote_count']):,}")
+            st.caption(f"Votes: {int(row['vote_count']):,}")
     
     st.divider()
     
     # Most popular
-    st.markdown("### 🔥 Top 10 Most Popular Movies")
+    st.markdown("### Top 10 Most Popular Movies")
     most_popular = df.nlargest(10, 'popularity')[['original_title', 'popularity', 'vote_average']]
     
     for idx, (i, row) in enumerate(most_popular.iterrows(), 1):
@@ -303,25 +365,25 @@ elif view_mode == "📊 Dataset Info":
         with col1:
             st.write(f"**{idx}. {row['original_title']}**")
         with col2:
-            st.caption(f"🔥 {row['popularity']:.0f}")
+            st.caption(f"Popularity: {row['popularity']:.0f}")
         with col3:
-            st.caption(f"⭐ {row['vote_average']:.1f}")
+            st.caption(f"Rating: {row['vote_average']:.1f}")
 
 # ==================== FOOTER ====================
 st.divider()
 st.markdown("""
     ---
-    **🔧 Technical Stack:**
+    **Technical Stack:**
     - Language: Python 3.x
     - Framework: Streamlit
     - Algorithm: TF-IDF + Cosine Similarity
     - Data: TMDB 5000 Movies Dataset
     
-    **🎯 How It Works:**
+    **How It Works:**
     1. Movie plots converted to TF-IDF vectors
     2. Cosine similarity computed between all movies
     3. Top 10 similar movies recommended
     
     ---
-    Made with ❤️ by Amshavarthana-S
+    Developed by Amshavarthana-S
 """)
